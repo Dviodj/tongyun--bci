@@ -54,3 +54,5 @@ python main.py --data ./data/raw --mode metabci
 ```bash
 python main.py --realtime --mode custom
 ```
+##声明
+本项目由seed2.0辅助开发
