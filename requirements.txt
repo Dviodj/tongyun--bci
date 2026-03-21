@@ -1,0 +1,15 @@
+# 脑电信号 → 摩斯密码识别项目 - 依赖包
+
+# 核心依赖
+numpy>=1.19.0
+scipy>=1.5.0
+mne>=0.23.0
+scikit-learn>=0.24.0
+matplotlib>=3.3.0
+
+# 可视化（PyQt5 版本）
+PyQt5>=5.15.0
+pyedflib>=0.1.40
+
+# 可选：MetaBCI（用于第二种处理模式）
+metabci>=0.4.0
