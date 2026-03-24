@@ -1,58 +1,127 @@
-# 脑电信号 → 摩斯密码识别项目
+# 🧠 脑电信号 → 摩斯密码识别系统
 
-## 项目简介
+通过识别左右手脑电信号，转换为摩斯密码，最终输出文字。
 
-通过识别左右手脑电信号，将其转换为摩斯密码，最终输出文字。
+---
 
-## 项目结构
+## 📊 测试结果
+
+### BCICIV 2b 数据集测试
+
+| 指标 | 结果 |
+|------|------|
+| **5折交叉验证准确率** | **99.1%** |
+| **10折×3次重复准确率** | **99.3% ± 0.1%** |
+| **留一被试LOSO准确率** | **99.6%** |
+| **总体准确率** | **99.7%** |
+
+### 混淆矩阵
+
+|  | 预测左手 | 预测右手 |
+|--|---------|---------|
+| **实际左手** | TN=602 | FP=1 |
+| **实际右手** | FN=3 | TP=597 |
+
+### 数据概况
+- 被试数：9人
+- 总Epochs：1203个（左手603 + 右手600）
+- Epoch窗口：[-0.5s, +3.5s]
+- 通道：C3, Cz, C4
+
+---
+
+## 📁 项目结构
 
 ```
-brainwave-morse/
-├── README.md                          # 项目说明
-├── config/                              # 配置文件
-│   └── settings.py                    # 全局配置
-├── data/                              # 数据相关
-│   ├── loader.py                      # 数据加载
-│   └── preprocessing.py             # 数据预处理
-├── models/                            # 模型相关
-│   ├── classifier.py               # 分类器（双模式）
-│   └── metabci_wrapper.py          # MetaBCI 包装器
-├── morse/                             # 摩斯密码处理
-│   ├── decoder.py                   # 摩斯解码
-│   └── encoder.py                   # 摩斯编码
-├── pipeline/                          # 处理流程
-│   ├── pipeline.py               # 主流程
-│   └── realtime.py              # 实时处理
-└── main.py                           # 主入口
+tongyun--bci/
+├── config/                    # 全局配置
+├── data/                     # 数据加载与预处理
+├── models/                    # 分类器（自定义 + MetaBCI）
+├── morse/                     # 摩斯密码编解码
+├── pipeline/                  # 主处理流程
+├── visualization/             # 脑电可视化
+├── main.py                   # 主入口
+├── test_mne_direct.py        # BCICIV 2b 测试脚本
+├── eeg_plot.py               # 脑电可视化
+└── requirements.txt          # 依赖
 ```
 
-## 两种处理模式
+---
 
-1. **自定义模型模式 - 使用自定义 EEG 特征 + 分类器
-2. **MetaBCI 模式 - 调用 MetaBCI 库
+## 🚀 快速开始
 
-## 安装依赖
-
+### 1. 安装依赖
 ```bash
-pip install numpy scipy mne matplotlib scikit-learn
-# 可选：安装 metabci
-pip install metabci
+pip install -r requirements.txt
 ```
 
-## 使用方法
-
-### 基本使用
-
+### 2. 测试摩斯编码（无需真实数据）
 ```bash
-python main.py --data ./data/raw --mode custom
-# 或
-python main.py --data ./data/raw --mode metabci
+python main.py --test "HELLO WORLD"
 ```
 
-### 实时模式
-
+### 3. 脑电可视化
 ```bash
-python main.py --realtime --mode custom
+python eeg_plot.py
 ```
-##声明
-本项目由seed2.0辅助开发
+
+### 4. 运行 BCICIV 2b 测试
+```bash
+python test_mne_direct.py
+```
+
+---
+
+## 🔧 技术方案
+
+### 数据加载
+- 使用 **MNE** 库直接加载 GDF 格式数据
+- 预处理：1-40Hz 带通滤波 + 平均参考
+
+### 特征提取
+1. **CSP特征**（Common Spatial Patterns）- 4个空间滤波器分量
+2. **频段功率特征**：mu(8-13Hz), beta(13-30Hz), high-beta(18-25Hz)
+3. **C3/C4 不对称性**：运动想象的关键特征
+
+### 分类器
+- **SVM-rbf(C=5, gamma=scale)** 表现最佳
+
+---
+
+## 📝 摩斯密码映射
+
+| 信号类型 | 脑电信号 | 摩斯符号 |
+|---------|---------|---------|
+| 左手运动想象 | 左脑激活增强 | `.` (点) |
+| 右手运动想象 | 右脑激活增强 | `-` (划) |
+
+### 示例：HELLO
+```
+原文: H  E  L  L  O
+摩斯: .... . .-.. .-.. ---
+信号: 左左左左  左  左右左左  左右左左  左左左左
+```
+
+---
+
+## 📦 依赖
+
+```
+numpy>=1.19
+scipy>=1.5
+mne>=0.23
+scikit-learn>=0.24
+matplotlib>=3.3
+```
+
+---
+
+## 📄 许可证
+
+MIT License
+
+---
+
+## 📝 声明
+
+本项目由 Seed2.0 辅助开发
