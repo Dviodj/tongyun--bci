@@ -1,6 +1,6 @@
 @echo off
 cd /d D:\brainwave-morse
 git add -A
-git commit -m "Update README with 99.1%% accuracy results"
+git commit -m "Update: Fix data leakage, real results 71.5%% LOSO"
 git push origin main
 echo [DONE]
